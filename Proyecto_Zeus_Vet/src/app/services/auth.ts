@@ -6,15 +6,17 @@ import { Order } from '../models/order';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  
+ 
   private apiUrl = 'http://localhost:4000/api/auth'; 
+  private passwordApiUrl = 'http://localhost:4000/api/password';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
+  
 
   constructor(private http: HttpClient) {} 
 
   register(nombre: string, email: string, contrasena: string, direccion: string): Observable<User> {
-    
+   
     return this.http.post<User>(`${this.apiUrl}/register`, {
       nombre,
       email,
@@ -29,13 +31,13 @@ export class AuthService {
   }
 
   login(email: string, contrasena: string): Observable<User> {
-    
+   
     return this.http.post<User>(`${this.apiUrl}/login`, {
       email,
       contrasena
     }).pipe(
       tap(user => {
-        this.currentUserSubject.next(user);
+      this.currentUserSubject.next(user);
       }),
       catchError(this.handleError)
     );
@@ -51,12 +53,12 @@ export class AuthService {
 
   private handleError(error: any) {
     console.error('Error en AuthService:', error);
-    return throwError(() => new Error(error.error?.error || 'Error del servidor'));
+    return throwError(() => error); 
   }
 
   updateUser(user: User): Observable<User> {
     const url = `${this.apiUrl}/user/${user.id}`;
-    
+
     return this.http.put<User>(url, { 
       nombre: user.nombre, 
       email: user.email, 
@@ -74,12 +76,12 @@ export class AuthService {
 
     return this.http.delete(url).pipe(
       tap(() => {
-        this.logout();
+      this.logout();
       }),
       catchError(this.handleError)
     );
   }
-  
+ 
   getOrderHistory(userId: number): Observable<Order[]> {
     const url = `${this.apiUrl}/history/${userId}`;
 
@@ -87,5 +89,19 @@ export class AuthService {
       catchError(this.handleError)
     );
   }
+
+    requestPasswordReset(email: string): Observable<any> {
+            return this.http.post(`${this.passwordApiUrl}/request`, { email }).pipe(
+            map(res => res),
+            catchError(this.handleError)  
+          );
+    }
+ 
+    resetPassword(token: string, nuevaContrasena: string): Observable<any> {
+        return this.http.post(`${this.passwordApiUrl}/reset/${token}`, { nuevaContrasena }).pipe(
+            map(res => res),
+            catchError(this.handleError)
+        );
+    }
 
 }
