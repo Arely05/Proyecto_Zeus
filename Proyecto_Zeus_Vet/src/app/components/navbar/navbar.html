@@ -1,10 +1,11 @@
 <nav class="nav">
-  <a routerLink="/" class="brand">Zeus Vet</a>
+  <span class="brand">Zeus Vet</span>
+  
   <div class="links">
     
+    <a routerLink="/">Catálogo</a>
+    
     <a routerLink="/cart">Carrito</a>
-    <a routerLink="/checkout">Checkout</a>
-
     <ng-container *ngIf="!currentUser">
       <a routerLink="/login">Iniciar Sesion</a>
       <a routerLink="/register">Registro</a>

@@ -152,3 +152,62 @@ h2 {
   margin: 40px auto;
   max-width: 600px;
 }
+
+.product-card {
+  background: #ffffff;
+  border-radius: 12px; 
+  overflow: hidden;
+  box-shadow: 0 6px 16px rgba(48, 86, 105, 0.1); 
+  border: 1px solid #B7E5CD; 
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative; 
+}
+
+
+.product-card.out-of-stock {
+    background-color: #f0f0f0;
+    border-color: #ccc;
+}
+
+.product-card.out-of-stock .card-image,
+.product-card.out-of-stock .card-info {
+    opacity: 0.5; 
+    filter: grayscale(100%); 
+}
+
+
+.out-of-stock-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(48, 86, 105, 0.2); 
+}
+
+.out-of-stock-overlay span {
+    background-color: #C1785A; 
+    color: white;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    transform: rotate(-5deg); 
+    text-align: center;
+}
+
+.add-to-cart-btn:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}

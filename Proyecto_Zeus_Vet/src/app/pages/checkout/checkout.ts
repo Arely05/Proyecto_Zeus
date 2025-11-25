@@ -5,14 +5,14 @@ import { CartItem } from '../../models/cart-item';
 import { CartService } from '../../services/cart'; 
 import { HttpClient } from '@angular/common/http'; 
 import { AuthService } from '../../services/auth'; 
-
+import { RouterLink } from '@angular/router';
 
 declare const paypal: any; 
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, NgIf, NgFor, DecimalPipe, NavbarComponent], 
+  imports: [CommonModule, NgIf, NgFor, DecimalPipe, NavbarComponent, RouterLink], 
   templateUrl: './checkout.html',
   styleUrls: ['./checkout.css']
 })
@@ -35,8 +35,7 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cart.items$?.subscribe?.(items => this.items = items) ?? (this.items = this.cart.items ?? []);
   }
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   ngAfterViewInit(): void {
     if (this.items.length) {
@@ -51,12 +50,32 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   
+  updateQty(productId: number, quantity: string | number) {
+    const qty = Number(quantity);
+    if (qty > 0) {
+      this.cart.updateQuantity(productId, qty);
+      this.paymentError = ''; 
+    }
+  }
+
+  remove(productId: number) {
+    this.cart.remove(productId);
+    this.paymentError = ''; 
+    if (this.items.length === 0) {
+        const script = document.getElementById('paypal-sdk');
+        if (script) script.remove();
+    }
+  }
+
   subtotal(): number { return this.items.reduce((sum, i) => sum + (i.product.precio * i.quantity), 0); }
   iva(): number { return this.subtotal() * this.ivaRate; }
   total(): number { return this.subtotal() + this.iva(); }
 
   loadPaypalScript(): void {
-    if (document.getElementById('paypal-sdk')) return;
+    if (document.getElementById('paypal-sdk')) {
+        this.renderPaypalButtons();
+        return;
+    }
 
     const script = document.createElement('script');
     script.id = 'paypal-sdk';
@@ -68,6 +87,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
   renderPaypalButtons(): void {
     if (typeof paypal === 'undefined' || !this.paypalButtonContainer) return;
 
+    this.paypalButtonContainer.nativeElement.innerHTML = "";
+
     paypal.Buttons({
         createOrder: (data: any, actions: any) => {
             const user = this.auth.currentUserValue;
@@ -75,6 +96,8 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.paymentError = "Debe iniciar sesión para pagar.";
                 return actions.reject();
             }
+            
+            this.paymentError = ''; 
 
             return this.http.post('http://localhost:4000/api/payment/create-order', {
                 items: this.items, 
@@ -83,8 +106,13 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
             .toPromise()
             .then((res: any) => res.id)
             .catch(err => {
-                this.paymentError = err.error?.details || "Error al crear la orden de pago (Revise API).";
-                return actions.reject(err);
+                console.error("Error al crear orden:", err);
+                if (err.error && err.error.details) {
+                    this.paymentError = `${err.error.error} ${err.error.details}`;
+                } else {
+                    this.paymentError = err.error?.error || "Error al iniciar el pago.";
+                }
+                return actions.reject(err); 
             });
         },
         
@@ -107,19 +135,21 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
             });
         },
         
-        onCancel: () => { this.paymentError = "El pago fue cancelado por el usuario."; },
-        onError: (err: any) => { this.paymentError = "Ocurrió un error inesperado con PayPal."; console.error(err); }
+        onCancel: () => { 
+        },
+        onError: (err: any) => {           
+            if (!this.paymentError) {
+                this.paymentError = "Ocurrió un error inesperado con PayPal.";
+            }
+        }
     }).render(this.paypalButtonContainer.nativeElement);
   }
   
   handleSuccess(response: any, paypalData: any): void {
     if (response.status === 'COMPLETED') {
         this.paid = true;
-        
         this.generateReceiptXML(paypalData.orderID, response.dbOrderId); 
-        
         this.cart.clear(); 
-        
     } else {
         this.paymentError = "El pago no se registró como completado.";
     }
@@ -127,7 +157,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private generateReceiptXML(paypalId: string, dbOrderId: number) {
     const date = new Date().toISOString();
-
     const subtotal = this.subtotal().toFixed(2);
     const iva = this.iva().toFixed(2);
     const total = this.total().toFixed(2);
@@ -168,8 +197,6 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
     a.download = `Recibo_${paypalId}.xml`;
     a.click();
     window.URL.revokeObjectURL(url);
-
-    console.log('Recibo generado:', `Recibo_${paypalId}.xml`);
   }
   
   private escapeXml(unsafe: string): string {
@@ -184,5 +211,4 @@ export class CheckoutComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
   }
-
 }

@@ -2,8 +2,17 @@
   
   <div *ngIf="user$ | async as user; else loading" class="profile-card">
     
-    <h2>¡Hola de nuevo, {{ user.nombre }}!</h2>
-    <p class="status-message">Bienvenido a tu panel de perfil.</p>
+    <div>
+        <h2>¡Hola, {{ user.nombre }}!</h2>
+        
+        <p class="status-message" *ngIf="user.administrador !== 1">
+            Bienvenido a tu perfil.
+        </p>
+        
+        <p class="admin-badge" *ngIf="user.administrador === 1">
+            ADMINISTRADOR 
+        </p>
+    </div>
 
     <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
@@ -19,7 +28,7 @@
         <span>{{ user.email }}</span>
       </div>
       <div class="detail-item">
-        <strong>Dirección de Envío:</strong>
+        <strong>Dirección:</strong>
         <span>{{ user.direccion }}</span>
       </div>
 
@@ -34,40 +43,115 @@
         <form [formGroup]="editForm" (ngSubmit)="onUpdate()">
 
             <div class="form-group">
-                <label for="nombre">Nombre</label>
-                <input id="nombre" type="text" formControlName="nombre" [class.is-invalid]="nombre?.invalid && nombre?.touched">
-                <div *ngIf="nombre?.invalid && nombre?.touched" class="invalid-feedback">
-                    <span *ngIf="nombre?.errors?.['required']">El nombre es requerido.</span>
-                </div>
+                <label>Nombre</label>
+                <input type="text" formControlName="nombre" [class.is-invalid]="nombre?.invalid && nombre?.touched">
             </div>
 
             <div class="form-group">
-                <label for="email">Email</label>
-                <input id="email" type="email" formControlName="email" [class.is-invalid]="email?.invalid && email?.touched">
-                <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
-                    <span *ngIf="email?.errors?.['required']">El email es requerido.</span>
-                    <span *ngIf="email?.errors?.['email']">Introduce un email válido.</span>
-                </div>
+                <label>Email</label>
+                <input type="email" formControlName="email" [class.is-invalid]="email?.invalid && email?.touched">
             </div>
 
             <div class="form-group">
-                <label for="direccion">Dirección</label>
-                <input id="direccion" type="text" formControlName="direccion" [class.is-invalid]="direccion?.invalid && direccion?.touched">
-                <div *ngIf="direccion?.invalid && direccion?.touched" class="invalid-feedback">
-                    <span *ngIf="direccion?.errors?.['required']">La dirección es requerida.</span>
-                </div>
+                <label>Dirección</label>
+                <input type="text" formControlName="direccion" [class.is-invalid]="direccion?.invalid && direccion?.touched">
             </div>
 
             <div class="action-buttons">
-                <button type="submit" class="submit-btn" [disabled]="editForm.invalid">Guardar Cambios</button>
+                <button type="submit" class="submit-btn" [disabled]="editForm.invalid">Guardar</button>
                 <button type="button" class="cancel-btn" (click)="cancelEdit()">Cancelar</button>
             </div>
         </form>
     </div>
 
-    <div class="order-history">
+    <div class="inventory-section" *ngIf="user.administrador === 1">
+        
+        <div class="inventory-header-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="margin-bottom: 0; border: none;">Gestión de Inventario</h3>
+            <button class="add-product-btn" (click)="openCreateProductModal()">+ Nuevo Producto</button>
+        </div>
+
+        <div class="inventory-table-container">
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Estado</th> <th>Precio</th>
+                        <th>Stock (Rápido)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let p of inventoryProducts" [class.inactive-row]="p.activo === 0">
+                        <td>
+                            <div class="prod-cell">
+                                <img [src]="p.imagen" alt="img" class="tiny-img">
+                                <span>{{ p.nombre }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge" [class.status-active]="p.activo === 1" [class.status-inactive]="p.activo === 0">
+                                {{ p.activo === 1 ? 'Activo' : 'Oculto' }}
+                            </span>
+                        </td>
+                        <td>${{ p.precio }}</td>
+                        <td>
+                            <input type="number" [(ngModel)]="p.stock" min="0" class="stock-input">
+                            <button class="save-stock-btn-mini" (click)="saveStock(p)" title="Guardar solo stock">✓</button>
+                        </td>
+                        <td>
+                            <div class="action-cell">
+                                <button class="edit-full-btn" (click)="openEditProductModal(p)">
+                                    Editar
+                                </button>
+
+                                <button class="toggle-btn" 
+                                        [class.btn-restore]="p.activo === 0"
+                                        [class.btn-delete]="p.activo === 1"
+                                        (click)="toggleStatus(p)">
+                                    {{ p.activo === 1 ? 'Ocultar' : 'Activar' }}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="order-history" *ngIf="user.administrador !== 1">
       <h3>Historial de Pedidos</h3>
-      <p class="empty-history">Aún no tienes pedidos registrados.</p>
+      
+      <p class="empty-history" *ngIf="orderHistory.length === 0">
+        Aún no tienes pedidos registrados.
+      </p>
+
+      <div class="history-list" *ngIf="orderHistory.length > 0">
+        <div *ngFor="let order of orderHistory" class="history-card">
+            
+            <div class="history-header">
+                <span class="order-date">{{ order.fecha | date:'mediumDate' }}</span>
+                <span class="order-status">{{ order.estado }}</span>
+            </div>
+
+            <div class="history-items">
+                <div *ngFor="let detail of order.detalles" class="item-row">
+                    <span class="item-name">{{ detail.cantidad }}x {{ detail.producto_nombre }}</span>
+                    <span class="item-price">${{ detail.precio_unidad | number:'1.2-2' }}</span>
+                </div>
+            </div>
+
+            <div class="history-total">
+                <span>Total:</span>
+                <strong>${{ order.total | number:'1.2-2' }}</strong>
+            </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="navigation-actions">
+        <a routerLink="/" class="back-home-btn">Volver al Inicio</a>
     </div>
 
   </div>
@@ -75,5 +159,53 @@
   <ng-template #loading>
     <p>Cargando perfil...</p>
   </ng-template>
+
+
+  <div class="modal-overlay" *ngIf="isProductModalOpen">
+    <div class="modal-content">
+        <h3>{{ isCreating ? 'Nuevo Producto' : 'Editar Producto' }}</h3>
+        
+        <div class="modal-form">
+            <div class="form-group">
+                <label>Nombre del Producto</label>
+                <input type="text" [(ngModel)]="selectedProduct.nombre">
+            </div>
+
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea [(ngModel)]="selectedProduct.descripcion" rows="3"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Precio ($)</label>
+                    <input type="number" [(ngModel)]="selectedProduct.precio">
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" [(ngModel)]="selectedProduct.stock">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Imagen del Producto</label>
+                
+                <input type="file" (change)="onFileSelected($event)" accept="image/*">
+                
+                <div class="img-preview" *ngIf="imagePreview">
+                    <p style="font-size: 0.8rem; color: #666; margin-bottom: 5px;">Vista previa:</p>
+                    <img [src]="imagePreview" alt="Vista previa">
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="submit-btn" (click)="saveProductChanges()">
+                    {{ isCreating ? 'Crear Producto' : 'Guardar Cambios' }}
+                </button>
+                <button class="cancel-btn" (click)="closeProductModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+  </div>
 
 </div>

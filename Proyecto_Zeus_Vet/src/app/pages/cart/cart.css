@@ -1,65 +1,80 @@
+/* ================================================= */
+/* 1. ESTRUCTURA GENERAL Y TIPOGRAFÍA */
+/* ================================================= */
+
 body {
-  background-color: #ECF4E8; 
+  background-color: #f7fcf8; /* Fondo más claro y suave */
 }
 
 .page-container {
-  padding: 40px 24px;
-  max-width: 1200px;
+  padding: 60px 24px; /* Más espacio vertical */
+  max-width: 1100px; /* Reducimos el ancho máximo ligeramente */
   margin: 0 auto;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 h2 {
-  font-size: 2.5rem;
+  font-size: 2.2rem; /* Ligeramente más pequeño */
   font-weight: 700;
-  margin-bottom: 32px;
+  margin-bottom: 40px; /* Más espacio debajo del título */
   color: #305669; 
   text-align: center;
-  border-bottom: 3px solid #ABE7B2; 
-  padding-bottom: 10px;
+  border-bottom: 2px solid #e0f0e5; /* Borde más sutil */
+  padding-bottom: 15px;
 }
 
 .cart-layout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 32px; 
+  grid-template-columns: 3fr 1fr; /* Más espacio para los productos */
+  gap: 40px; 
   align-items: flex-start;
 }
 
+
+/* ================================================= */
+/* 2. CARRITO VACÍO */
+/* ================================================= */
+
 .empty-cart {
   text-align: center;
-  padding: 80px 30px;
-  background-color: #B7E5CD; 
-  border-radius: 12px;
-  border: 2px dashed #93BFC7; 
+  padding: 60px 30px;
+  background-color: #e0f0e5; /* Color suave para fondo */
+  border-radius: 16px; /* Bordes más grandes */
+  border: none; /* Eliminamos el borde dashed para simplicidad */
   color: #305669;
-  font-size: 1.2rem; 
+  font-size: 1.1rem; 
   font-weight: 600;
+  box-shadow: 0 4px 12px rgba(48, 86, 105, 0.05);
 }
+
+
+/* ================================================= */
+/* 3. ÍTEMS DEL CARRITO */
+/* ================================================= */
 
 .item-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px; /* Menos espacio entre ítems para compacidad */
 }
 
 .cart-item {
   display: flex; 
   align-items: center; 
-  gap: 20px;
+  gap: 25px;
   
-  padding: 20px;
+  padding: 20px 30px; /* Más padding horizontal */
   background: #ffffff;
-  border-radius: 16px; 
-  box-shadow: 0 6px 16px rgba(48, 86, 105, 0.08);
-  border: 1px solid #B7E5CD; 
+  border-radius: 12px; /* Ligeramente más pequeños */
+  box-shadow: 0 4px 12px rgba(48, 86, 105, 0.08); /* Sombra más suave */
+  border: none; /* Eliminamos el borde para un look más flotante */
 }
 
 .product-image {
-  min-width: 100px;
-  height: 100px;
+  min-width: 90px;
+  height: 90px; /* Reducimos ligeramente el tamaño de la imagen */
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: 8px;
 }
 
 .product-info {
@@ -71,34 +86,34 @@ h2 {
 .product-info .name {
   font-weight: 700;
   color: #305669;
-  font-size: 1.15rem;
-  margin-bottom: 4px;
+  font-size: 1.1rem;
+  margin-bottom: 6px;
 }
 
 .product-info .desc {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   color: #93BFC7; 
 }
 
 .item-controls {
   display: flex;
   align-items: center;
-  gap: 30px; 
+  gap: 25px; /* Reducimos la separación */
 }
 
 .product-price {
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   color: #8ABEB9;
   text-align: right;
-  min-width: 100px;
+  min-width: 90px;
 }
 
 .product-quantity input[type="number"] {
-  width: 70px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 2px solid #B7E5CD; 
+  width: 55px; /* Más delgado */
+  padding: 8px 10px; /* Menos padding */
+  border-radius: 8px; 
+  border: 1px solid #B7E5CD; /* Borde más fino */
   text-align: center;
   font-size: 1rem;
   color: #305669;
@@ -106,15 +121,15 @@ h2 {
 .product-quantity input[type="number"]:focus {
   outline: none;
   border-color: #8ABEB9; 
-  box-shadow: 0 0 0 3px rgba(138, 190, 185, 0.4);
+  box-shadow: 0 0 0 3px rgba(138, 190, 185, 0.2); /* Sombra de foco más suave */
 }
 
 .remove-btn {
   background: none;
   border: none;
-  color: #93BFC7; 
-  font-size: 2rem;
-  font-weight: 300;
+  color: #b0c9d0; /* Color inicial más discreto */
+  font-size: 1.8rem; /* Ligeramente más pequeño */
+  font-weight: 400;
   cursor: pointer;
   padding: 0 10px;
   transition: color 0.2s ease;
@@ -123,76 +138,77 @@ h2 {
   color: #C1785A; 
 }
 
+/* ================================================= */
+/* 4. RESUMEN DEL PEDIDO */
+/* ================================================= */
+
 .order-summary {
   background: #ffffff;
   padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 6px 16px rgba(48, 86, 105, 0.08);
-  border: 1px solid #B7E5CD; 
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(48, 86, 105, 0.08);
+  border: 1px solid #e0f0e5; /* Borde muy sutil */
   position: sticky;
-  top: 32px; 
+  top: 100px; /* Bajamos el sticky un poco más */
 }
 
 .order-summary h4 {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   margin-top: 0;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   color: #305669; 
-  border-bottom: 2px solid #B7E5CD; 
-  padding-bottom: 12px;
+  border-bottom: 1px solid #e0f0e5; /* Borde más delgado */
+  padding-bottom: 10px;
 }
 
 .summary-row, .summary-total {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  color: #305669;
-  font-size: 1rem;
+  margin-bottom: 15px; /* Más espacio entre filas */
+  font-size: 1.05rem;
 }
 
 .summary-total {
   font-weight: 700;
-  font-size: 1.25rem;
-  color: #305669; 
-  margin-top: 25px;
-  padding-top: 16px;
-  border-top: 2px solid #B7E5CD; 
+  font-size: 1.35rem;
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e0f0e5; 
 }
 
 .total-amount {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   color: #8ABEB9; 
 }
 
 .checkout-button {
-  display: block;
-  width: 100%;
-  padding: 16px;
+  padding: 18px; /* Botón un poco más alto */
   background: #8ABEB9; 
   color: #305669; 
-  text-align: center;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 1.1rem;
-  border-radius: 10px;
-  margin-top: 30px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 15px rgba(138, 190, 185, 0.5);
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-size: 1.15rem;
+  border-radius: 8px;
+  margin-top: 35px;
+  box-shadow: 0 6px 15px rgba(138, 190, 185, 0.5); /* Sombra más pronunciada */
 }
 
 .checkout-button:hover {
   background: #93BFC7; 
-  transform: translateY(-2px);
+  transform: translateY(-1px); /* Efecto de elevación más sutil */
 }
 
+
+/* ================================================= */
+/* 5. RESPONSIVE (Ajustes de Mobile) */
+/* ================================================= */
 
 @media (max-width: 992px) {
   .cart-layout {
     grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .order-summary {
+    top: 30px; /* Ajustamos la posición sticky en tablet */
   }
   
+  /* No cambiamos la estructura de grid del ítem en tablet/móvil para mantener la simplicidad */
   .cart-item {
     display: grid;
     grid-template-columns: auto 1fr auto;
@@ -212,36 +228,33 @@ h2 {
     justify-content: space-between;
     gap: 10px;
   }
-
   .product-quantity { order: 1; }
   .product-price { order: 2; }
 }
 
-@media (max-width: 480px) {
-    .cart-item {
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas: 
-            "info remove"
-            "controls controls"; 
-        padding-left: 110px; 
-        position: relative;
-    }
-    .product-image {
+@media (max-width: 576px) { /* Ajustamos el breakpoint para móviles más pequeños */
+  h2 {
+    font-size: 2rem;
+  }
+  .page-container {
+    padding: 30px 15px;
+  }
+  .cart-item {
+    padding-left: 100px; /* Reducimos el espacio */
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+        "info remove"
+        "controls controls"; 
+    position: relative;
+  }
+  .product-image {
         position: absolute;
-        left: 12px;
-        top: 12px;
-        width: 80px;
-        height: 80px;
-    }
-    .product-info {
-      display: flex;
-      flex-direction: column; 
-    }
-    .item-controls {
-      display: flex;
-      justify-content: space-between;
-    }
-    .product-price {
-        font-size: 1.1rem;
-    }
+        left: 10px;
+        top: 10px;
+        width: 70px; /* Imagen más pequeña en móviles */
+        height: 70px;
+  }
+  .product-info {
+      display: block; /* Volvemos a block para que el nombre y la descripción se apilen */
+  }
 }

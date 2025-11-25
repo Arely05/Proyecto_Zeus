@@ -1,12 +1,11 @@
-//recuerda: aqui basicamente es toda la union de nuestros controladores para manejar lo de usuarios y pedidos
 import db from '../config/db.js';
 import bcrypt from 'bcryptjs';
 
-//nuestro registro de un nuevo usuario 
+//mi registro de usuarios
 export const register = async (req, res) => {
     const { nombre, email, contrasena, direccion } = req.body;
 
-    //nomas validamos si el gmail existe o no
+    //aqui hacemos una consulta a la tabla de usuario
     try {
         const checkEmailSql = "SELECT * FROM usuario WHERE email = ?";
         const [results] = await db.query(checkEmailSql, [email]); 
@@ -15,15 +14,13 @@ export const register = async (req, res) => {
             return res.status(400).json({ error: 'El email ya está registrado' });
         }
 
-        //aqui tenemos la encriptacion de la contraseña
         const salt = await bcrypt.genSalt(10);
         const contrasenaHasheada = await bcrypt.hash(contrasena, salt);
 
-        //insertamos nuestro nuevo usuario
+        //insertamos los datos del usuario, sin insertar algo en el campo admin para mas seguridad
         const insertSql = "INSERT INTO usuario (nombre, email, contrasena, direccion) VALUES (?, ?, ?, ?)";
         const [result] = await db.query(insertSql, [nombre, email, contrasenaHasheada, direccion]);
 
-        //los datos ya ingresados del usuario
         res.status(201).json({ 
             id: result.insertId, 
             nombre, 
@@ -37,7 +34,7 @@ export const register = async (req, res) => {
     }
 };
 
-
+//nuestro inicio de sesion, nomas checa que el correo si este registrado y compara datos proporcionados
 export const login = async (req, res) => {
     const { email, contrasena } = req.body;
 
@@ -50,7 +47,6 @@ export const login = async (req, res) => {
         }
 
         const usuario = results[0];
-
         const esMatch = await bcrypt.compare(contrasena, usuario.contrasena);
 
         if (!esMatch) {
@@ -61,7 +57,8 @@ export const login = async (req, res) => {
             id: usuario.id,
             nombre: usuario.nombre,
             email: usuario.email,
-            direccion: usuario.direccion
+            direccion: usuario.direccion,
+            administrador: usuario.administrador 
         });
 
     } catch (err) {
@@ -70,7 +67,7 @@ export const login = async (req, res) => {
     }
 };
 
-//actualizacion de datos del usuario
+//edicion de los datos del usuario
 export const updateUser = async (req, res) => {
     const userId = parseInt(req.params.id); 
     const { nombre, email, direccion } = req.body;
@@ -87,13 +84,7 @@ export const updateUser = async (req, res) => {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
-        res.json({ 
-            id: userId, 
-            nombre, 
-            email, 
-            direccion, 
-            message: 'Usuario actualizado correctamente.' 
-        });
+        res.json({ id: userId, nombre, email, direccion, message: 'Usuario actualizado correctamente.' });
 
     } catch (err) {
         console.error('Error al actualizar usuario:', err);
@@ -108,22 +99,43 @@ export const deleteUser = async (req, res) => {
         return res.status(400).json({ error: 'ID de usuario inválido.' });
     }
 
+    const connection = await db.getConnection(); 
+
     try {
-        const sql = "DELETE FROM usuario WHERE id = ?";
-        const [result] = await db.query(sql, [userId]);
+        await connection.beginTransaction();
+
+        const deleteDetallesSql = `
+            DELETE dp 
+            FROM detalle_pedido dp
+            INNER JOIN pedido p ON dp.id_pedido = p.id
+            WHERE p.id_usuario = ?
+        `;
+        await connection.query(deleteDetallesSql, [userId]);
+
+        const deletePedidosSql = "DELETE FROM pedido WHERE id_usuario = ?";
+        await connection.query(deletePedidosSql, [userId]);
+
+        const deleteUserSql = "DELETE FROM usuario WHERE id = ?";
+        const [result] = await connection.query(deleteUserSql, [userId]);
 
         if (result.affectedRows === 0) {
+            await connection.rollback();
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
-        res.json({ message: 'Usuario eliminado correctamente.' });
+        await connection.commit(); 
+        res.json({ message: 'Usuario y su historial eliminados correctamente.' });
 
     } catch (err) {
+        await connection.rollback();
         console.error('Error al eliminar usuario:', err);
         return res.status(500).json({ error: 'Error interno del servidor al eliminar.' });
+    } finally {
+        connection.release(); 
     }
 };
 
+//aqui tenemos una consulta multi tablas
 export const getOrderHistory = async (req, res) => {
     const userId = parseInt(req.params.id);
 
@@ -153,7 +165,6 @@ export const getOrderHistory = async (req, res) => {
         
         const orders = results.reduce((acc, row) => {
             const existingOrder = acc.find(o => o.id === row.pedido_id);
-
             const detail = {
                 cantidad: row.cantidad,
                 precio_unidad: row.precio_unidad,
@@ -174,7 +185,6 @@ export const getOrderHistory = async (req, res) => {
             }
             return acc;
         }, []);
-
 
         res.json(orders);
 

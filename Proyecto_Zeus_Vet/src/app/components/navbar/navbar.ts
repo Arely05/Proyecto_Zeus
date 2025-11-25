@@ -1,8 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../services/auth'; // Ajusta ruta
-import { User } from '../../models/user'; // Ajusta ruta
+import { AuthService } from '../../services/auth'; 
+import { User } from '../../models/user'; 
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,19 +21,18 @@ export class NavbarComponent implements OnDestroy {
     private authService: AuthService,
     private router: Router
   ) {
-    // Nos suscribimos a los cambios en el usuario logueado
+    
     this.authSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
   }
 
   ngOnDestroy(): void {
-    // Limpiamos la suscripción
     this.authSubscription?.unsubscribe();
   }
 
   logout(): void {
     this.authService.logout();
-    this.router.navigate(['/login']); // Redirigimos al login
+    this.router.navigate(['/login']); 
   }
 }

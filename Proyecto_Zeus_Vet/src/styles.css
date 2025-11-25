@@ -1,1 +1,30 @@
-/* You can add global styles to this file, and also import other style files */
+body {
+    margin-bottom: 50px; 
+}
+
+.main-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #305669; 
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.85rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    font-family: system-ui, sans-serif;
+}
+
+.main-footer a {
+    color: #B7E5CD; 
+    text-decoration: none;
+    margin: 0 5px;
+    transition: color 0.2s;
+}
+
+.main-footer a:hover {
+    color: #8ABEB9;
+    text-decoration: underline;
+}

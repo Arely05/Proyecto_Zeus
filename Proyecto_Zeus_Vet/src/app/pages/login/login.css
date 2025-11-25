@@ -16,7 +16,7 @@
   padding: 40px;
   box-shadow: 0 10px 40px rgba(48, 86, 105, 0.15); 
   border: 1px solid #B7E5CD;
-    position: relative; 
+  position: relative; 
 }
 
 .auth-form h2 {
@@ -90,7 +90,6 @@
   box-shadow: none;
 }
 
-
 .is-invalid {
   border-color: #C1785A !important; 
 }
@@ -128,7 +127,6 @@
     font-weight: 600;
     text-decoration: underline;
     transition: color 0.2s ease;
-    
     position: relative;
     z-index: 11;
 }
@@ -137,6 +135,23 @@
     color: #8ABEB9;
 }
 
-.submit-btn {
-    z-index: 5; 
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.95rem;
+    color: #305669;
+    padding-top: 15px;
+    border-top: 1px dashed #B7E5CD;
+}
+
+.register-link a {
+    color: #8ABEB9;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.register-link a:hover {
+    color: #93BFC7;
+    text-decoration: underline;
 }

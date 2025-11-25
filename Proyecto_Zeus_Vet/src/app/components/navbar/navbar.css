@@ -1,14 +1,11 @@
-
 .nav {
   background: #B7E5CD; 
   display: flex; 
-  justify-content: space-between; 
-  align-items: center;
+  flex-direction: column; 
+  align-items: center; 
   padding: 18px 30px; 
   border-bottom: 3px solid #8ABEB9; 
-  
   box-shadow: 0 4px 8px rgba(48, 86, 105, 0.1); 
-
   position: sticky; 
   top: 0; 
   z-index: 1000; 
@@ -18,16 +15,21 @@
   color: #305669;
   font-weight: 800; 
   text-decoration: none; 
-  font-size: 1.5rem; 
+  font-size: 2.2rem; 
+  margin-bottom: 15px; 
   letter-spacing: -0.5px;
+}
+
+.links {
+
+    display: flex;
+    justify-content: center;
 }
 
 .links a { 
   margin-left: 25px; 
   text-decoration: none; 
-  
-  color: #305669; 
-
+  color: #305669;
   transition: color 0.3s ease, border-bottom 0.3s ease; 
   font-weight: 600; 
   padding-bottom: 5px; 
